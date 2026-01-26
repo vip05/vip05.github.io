@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>代理绑定系统</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				min-height: 100vh;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				padding: 20px;
+			}
+
+			.container {
+				background: white;
+				border-radius: 20px;
+				box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+				padding: 40px;
+				max-width: 500px;
+				width: 100%;
+			}
+
+			h1 {
+				color: #333;
+				margin-bottom: 10px;
+				font-size: 28px;
+			}
+
+			.subtitle {
+				color: #666;
+				margin-bottom: 30px;
+				font-size: 14px;
+			}
+
+			.form-group {
+				margin-bottom: 20px;
+			}
+
+			label {
+				display: block;
+				color: #555;
+				font-weight: 600;
+				margin-bottom: 8px;
+				font-size: 14px;
+			}
+
+			input {
+				width: 100%;
+				padding: 12px 15px;
+				border: 2px solid #e0e0e0;
+				border-radius: 10px;
+				font-size: 15px;
+				transition: all 0.3s;
+			}
+
+			input:focus {
+				outline: none;
+				border-color: #667eea;
+				box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+			}
+
+			button {
+				width: 100%;
+				padding: 14px;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: white;
+				border: none;
+				border-radius: 10px;
+				font-size: 16px;
+				font-weight: 600;
+				cursor: pointer;
+				transition:
+					transform 0.2s,
+					box-shadow 0.2s;
+			}
+
+			button:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+			}
+
+			button:active {
+				transform: translateY(0);
+			}
+
+			button:disabled {
+				opacity: 0.6;
+				cursor: not-allowed;
+			}
+
+			.result {
+				margin-top: 20px;
+				padding: 15px;
+				border-radius: 10px;
+				display: none;
+			}
+
+			.result.success {
+				background: #d4edda;
+				color: #155724;
+				border: 1px solid #c3e6cb;
+			}
+
+			.result.error {
+				background: #f8d7da;
+				color: #721c24;
+				border: 1px solid #f5c6cb;
+			}
+
+			.loading {
+				display: inline-block;
+				width: 20px;
+				height: 20px;
+				border: 3px solid rgba(255, 255, 255, 0.3);
+				border-radius: 50%;
+				border-top-color: #fff;
+				animation: spin 1s ease-in-out infinite;
+			}
+
+			@keyframes spin {
+				to {
+					transform: rotate(360deg);
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h1>🎯 代理绑定系统</h1>
+			<p class="subtitle">请填写以下信息完成绑定</p>
+
+			<form id="bindForm">
+				<div class="form-group">
+					<label for="telegramId">Telegram ID</label>
+					<input type="text" id="telegramId" placeholder="例如: 123456789" required />
+				</div>
+
+				<div class="form-group">
+					<label for="address">波场地址</label>
+					<input type="text" id="address" placeholder="例如: TXxx...xxx" required />
+				</div>
+
+				<div class="form-group">
+					<label for="serviceAccount">客服账号</label>
+					<input type="text" id="serviceAccount" placeholder="例如: agent001" required />
+				</div>
+
+				<button type="submit" id="submitBtn">
+					<span id="btnText">提交绑定</span>
+				</button>
+			</form>
+
+			<div id="result" class="result"></div>
+		</div>
+
+		<script>
+			// ⚠️ 重要：替换为你的 Google Apps Script Web App URL
+			const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxySAW3jDQcRrZWsD27IZZs2tzD6PJyDyyQlAFM0K035Zq2oZtRXhYsGLHqGspubdH5/exec'
+
+			const form = document.getElementById('bindForm')
+			const resultDiv = document.getElementById('result')
+			const submitBtn = document.getElementById('submitBtn')
+			const btnText = document.getElementById('btnText')
+
+			form.addEventListener('submit', async (e) => {
+				e.preventDefault()
+
+				// 显示加载状态
+				submitBtn.disabled = true
+				btnText.innerHTML = '<span class="loading"></span> 提交中...'
+				resultDiv.style.display = 'none'
+
+				const data = {
+					telegramId: document.getElementById('telegramId').value,
+					address: document.getElementById('address').value,
+					serviceAccount: document.getElementById('serviceAccount').value,
+				}
+
+				try {
+					// 发送 POST 请求
+					const response = await fetch(WEB_APP_URL, {
+						method: 'POST',
+						mode: 'no-cors', // 避免 CORS 问题
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(data),
+					})
+
+					// 由于使用了 no-cors，无法读取响应
+					// 假设请求成功
+					showResult('success', '✅ 绑定成功！数据已提交到系统。')
+					form.reset()
+				} catch (error) {
+					showResult('error', '❌ 提交失败: ' + error.message)
+				} finally {
+					// 恢复按钮状态
+					submitBtn.disabled = false
+					btnText.textContent = '提交绑定'
+				}
+			})
+
+			function showResult(type, message) {
+				resultDiv.className = 'result ' + type
+				resultDiv.textContent = message
+				resultDiv.style.display = 'block'
+
+				// 3秒后自动隐藏
+				setTimeout(() => {
+					resultDiv.style.display = 'none'
+				}, 3000)
+			}
+		</script>
+	</body>
+</html>
