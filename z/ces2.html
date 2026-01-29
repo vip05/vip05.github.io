@@ -175,6 +175,9 @@
 			// 3. 取消下面这行的注释并替换为你的 Worker URL
 			const WEB_APP_URL = 'https://vipusdt.dpdns.org/' // 👈 替换为你的 Cloudflare Worker URL
 
+			// 🔐 安全配置：API 密钥(必须与 Cloudflare Worker 中的 SECRET_KEY 一致)
+			const SECRET_API_KEY = '5bZk4n9czeodcjtmnPlgWsvS3gBX47hq8pqLvHKXEOc=' // 🔐 与 Worker 相同的密钥
+
 			const form = document.getElementById('bindForm')
 			const resultDiv = document.getElementById('result')
 			const submitBtn = document.getElementById('submitBtn')
@@ -201,6 +204,7 @@
 						redirect: 'follow', // 跟随重定向
 						headers: {
 							'Content-Type': 'application/json',
+							'X-API-Key': SECRET_API_KEY, // 🔐 添加 API 密钥
 						},
 						body: JSON.stringify(data),
 					})
