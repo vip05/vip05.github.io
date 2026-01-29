@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Cloudflare Pages 代理示例</title>
+		<title>代理绑定系统</title>
 		<style>
 			* {
 				margin: 0;
@@ -12,7 +12,7 @@
 			}
 
 			body {
-				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+				font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
 				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 				min-height: 100vh;
 				display: flex;
@@ -24,10 +24,10 @@
 			.container {
 				background: white;
 				border-radius: 20px;
-				padding: 40px;
-				max-width: 600px;
-				width: 100%;
 				box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+				padding: 40px;
+				max-width: 500px;
+				width: 100%;
 			}
 
 			h1 {
@@ -42,57 +42,40 @@
 				font-size: 14px;
 			}
 
-			.url-display {
-				background: #f5f5f5;
-				padding: 15px;
-				border-radius: 10px;
-				margin-bottom: 20px;
-				word-break: break-all;
-				font-family: 'Courier New', monospace;
-				font-size: 12px;
-				color: #667eea;
-			}
-
 			.form-group {
 				margin-bottom: 20px;
 			}
 
 			label {
 				display: block;
+				color: #555;
+				font-weight: 600;
 				margin-bottom: 8px;
-				color: #333;
-				font-weight: 500;
-			}
-
-			input,
-			textarea {
-				width: 100%;
-				padding: 12px;
-				border: 2px solid #e0e0e0;
-				border-radius: 8px;
 				font-size: 14px;
-				transition: border-color 0.3s;
 			}
 
-			input:focus,
-			textarea:focus {
+			input {
+				width: 100%;
+				padding: 12px 15px;
+				border: 2px solid #e0e0e0;
+				border-radius: 10px;
+				font-size: 15px;
+				transition: all 0.3s;
+			}
+
+			input:focus {
 				outline: none;
 				border-color: #667eea;
+				box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 			}
 
-			textarea {
-				resize: vertical;
-				min-height: 100px;
-				font-family: 'Courier New', monospace;
-			}
-
-			.btn {
+			button {
 				width: 100%;
 				padding: 14px;
 				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 				color: white;
 				border: none;
-				border-radius: 8px;
+				border-radius: 10px;
 				font-size: 16px;
 				font-weight: 600;
 				cursor: pointer;
@@ -101,64 +84,51 @@
 					box-shadow 0.2s;
 			}
 
-			.btn:hover {
+			button:hover {
 				transform: translateY(-2px);
-				box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+				box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
 			}
 
-			.btn:active {
+			button:active {
 				transform: translateY(0);
+			}
+
+			button:disabled {
+				opacity: 0.6;
+				cursor: not-allowed;
 			}
 
 			.result {
 				margin-top: 20px;
 				padding: 15px;
-				border-radius: 8px;
+				border-radius: 10px;
 				display: none;
 			}
 
 			.result.success {
 				background: #d4edda;
-				border: 1px solid #c3e6cb;
 				color: #155724;
+				border: 1px solid #c3e6cb;
 			}
 
 			.result.error {
 				background: #f8d7da;
-				border: 1px solid #f5c6cb;
 				color: #721c24;
-			}
-
-			.result pre {
-				margin-top: 10px;
-				background: rgba(0, 0, 0, 0.05);
-				padding: 10px;
-				border-radius: 5px;
-				overflow-x: auto;
-				font-size: 12px;
+				border: 1px solid #f5c6cb;
 			}
 
 			.loading {
-				display: none;
-				text-align: center;
-				margin-top: 20px;
-			}
-
-			.spinner {
-				border: 3px solid #f3f3f3;
-				border-top: 3px solid #667eea;
+				display: inline-block;
+				width: 20px;
+				height: 20px;
+				border: 3px solid rgba(255, 255, 255, 0.3);
 				border-radius: 50%;
-				width: 40px;
-				height: 40px;
-				animation: spin 1s linear infinite;
-				margin: 0 auto;
+				border-top-color: #fff;
+				animation: spin 1s ease-in-out infinite;
 			}
 
 			@keyframes spin {
-				0% {
-					transform: rotate(0deg);
-				}
-				100% {
+				to {
 					transform: rotate(360deg);
 				}
 			}
@@ -166,124 +136,104 @@
 	</head>
 	<body>
 		<div class="container">
-			<h1>🚀 Cloudflare Pages 代理测试</h1>
-			<p class="subtitle">通过 GitHub + Cloudflare Pages Functions 中转请求到 Google Apps Script</p>
+			<h1>🎯 代理绑定系统</h1>
+			<p class="subtitle">请填写以下信息完成绑定</p>
 
-			<div class="url-display" id="proxyUrl">代理 URL: https://your-site.pages.dev/api/proxy</div>
+			<form id="bindForm">
+				<div class="form-group">
+					<label for="telegramId">Telegram ID</label>
+					<input type="text" id="telegramId" placeholder="例如: 123456789" required />
+				</div>
 
-			<div class="form-group">
-				<label for="action">操作类型 (action)</label>
-				<input type="text" id="action" placeholder="例如: bind, query, test" value="test" />
-			</div>
+				<div class="form-group">
+					<label for="address">波场地址</label>
+					<input type="text" id="address" placeholder="例如: TXxx...xxx" required />
+				</div>
 
-			<div class="form-group">
-				<label for="data">请求数据 (JSON 格式)</label>
-				<textarea id="data" placeholder='{"key": "value"}'>
-{
-  "message": "Hello from Cloudflare Pages!"
-}</textarea
-				>
-			</div>
+				<div class="form-group">
+					<label for="serviceAccount">客服账号</label>
+					<input type="text" id="serviceAccount" placeholder="例如: agent001" required />
+				</div>
 
-			<button class="btn" onclick="sendRequest()">📤 发送请求</button>
+				<button type="submit" id="submitBtn">
+					<span id="btnText">提交绑定</span>
+				</button>
+			</form>
 
-			<div class="loading" id="loading">
-				<div class="spinner"></div>
-				<p style="margin-top: 10px; color: #666">正在发送请求...</p>
-			</div>
-
-			<div class="result" id="result"></div>
+			<div id="result" class="result"></div>
 		</div>
 
 		<script>
-			// ⚠️ 重要：部署到 Cloudflare Pages 后，将下面的 URL 替换为你的实际代理 URL
-			const PROXY_URL = 'https://nameless-band-425b.pzgw46z6it1jkcnb.workers.dev/'
+			// ⚠️ 重要：配置 API 地址
+			//
+			// 选项 1（国际用户）：直接使用 Google Apps Script URL
+			// const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxySAW3jDQcRrZWsD27IZZs2tzD6PJyDyyQlAFM0K035Zq2oZtRXhYsGLHqGspubdH5/exec'
+			//
+			// 选项 2（中国大陆用户）：使用 Cloudflare Worker 代理
+			// 1. 将 cloudflare-worker.js 部署到 Cloudflare Workers
+			// 2. 获取 Worker URL（例如：https://gas-proxy.your-name.workers.dev）
+			// 3. 取消下面这行的注释并替换为你的 Worker URL
+			const WEB_APP_URL = 'https://vipusdt.dpdns.org/' // 👈 替换为你的 Cloudflare Worker URL
 
-			// 更新页面显示的代理 URL
-			document.getElementById('proxyUrl').textContent = `代理 URL: ${PROXY_URL}`
+			const form = document.getElementById('bindForm')
+			const resultDiv = document.getElementById('result')
+			const submitBtn = document.getElementById('submitBtn')
+			const btnText = document.getElementById('btnText')
 
-			async function sendRequest() {
-				const action = document.getElementById('action').value.trim()
-				const dataText = document.getElementById('data').value.trim()
-				const resultDiv = document.getElementById('result')
-				const loadingDiv = document.getElementById('loading')
+			form.addEventListener('submit', async (e) => {
+				e.preventDefault()
 
-				// 隐藏之前的结果
+				// 显示加载状态
+				submitBtn.disabled = true
+				btnText.innerHTML = '<span class="loading"></span> 提交中...'
 				resultDiv.style.display = 'none'
-				resultDiv.className = 'result'
 
-				// 验证输入
-				if (!action) {
-					showResult('请输入操作类型', 'error')
-					return
+				const data = {
+					telegramId: document.getElementById('telegramId').value,
+					address: document.getElementById('address').value,
+					serviceAccount: document.getElementById('serviceAccount').value,
 				}
-
-				let requestData
-				try {
-					requestData = dataText ? JSON.parse(dataText) : {}
-				} catch (e) {
-					showResult('请求数据不是有效的 JSON 格式: ' + e.message, 'error')
-					return
-				}
-
-				// 构建完整的请求体
-				const payload = {
-					action: action,
-					...requestData,
-				}
-
-				// 显示加载动画
-				loadingDiv.style.display = 'block'
 
 				try {
-					console.log('发送请求到:', PROXY_URL)
-					console.log('请求数据:', payload)
-
-					const response = await fetch(PROXY_URL, {
+					// 发送 POST 请求（使用 redirect 模式以获取最终响应）
+					const response = await fetch(WEB_APP_URL, {
 						method: 'POST',
+						redirect: 'follow', // 跟随重定向
 						headers: {
 							'Content-Type': 'application/json',
 						},
-						body: JSON.stringify(payload),
+						body: JSON.stringify(data),
 					})
 
-					console.log('响应状态:', response.status)
-
+					// 读取响应
 					const result = await response.json()
-					console.log('响应数据:', result)
 
-					if (response.ok) {
-						showResult('✅ 请求成功!', 'success', result)
+					if (result.success) {
+						showResult('success', result.message)
+						form.reset()
 					} else {
-						showResult('❌ 请求失败 (HTTP ' + response.status + ')', 'error', result)
+						showResult('error', result.message || '提交失败，请重试')
 					}
 				} catch (error) {
 					console.error('请求错误:', error)
-					showResult('❌ 网络错误: ' + error.message, 'error', {
-						error: error.toString(),
-						message: '请检查代理 URL 是否正确，以及网络连接是否正常',
-					})
+					showResult('error', '❌ 网络错误: ' + error.message)
 				} finally {
-					loadingDiv.style.display = 'none'
-				}
-			}
-
-			function showResult(message, type, data) {
-				const resultDiv = document.getElementById('result')
-				resultDiv.className = 'result ' + type
-				resultDiv.innerHTML = `
-                <strong>${message}</strong>
-                ${data ? '<pre>' + JSON.stringify(data, null, 2) + '</pre>' : ''}
-            `
-				resultDiv.style.display = 'block'
-			}
-
-			// 支持回车键提交
-			document.getElementById('action').addEventListener('keypress', function (e) {
-				if (e.key === 'Enter') {
-					sendRequest()
+					// 恢复按钮状态
+					submitBtn.disabled = false
+					btnText.textContent = '提交绑定'
 				}
 			})
+
+			function showResult(type, message) {
+				resultDiv.className = 'result ' + type
+				resultDiv.textContent = message
+				resultDiv.style.display = 'block'
+
+				// 5秒后自动隐藏
+				setTimeout(() => {
+					resultDiv.style.display = 'none'
+				}, 5000)
+			}
 		</script>
 	</body>
 </html>
